@@ -1,7 +1,19 @@
-import { Controller, Get, Query, Param, Post, Body, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Query,
+  Param,
+  Post,
+  Body,
+  Put,
+  ParseIntPipe,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
+import { RoleGuard } from 'src/guards/role.guard';
 
 @Controller('user')
 export class UserController {
@@ -20,7 +32,7 @@ export class UserController {
 
   // GET /user/:id
   @Get(':id')
-  getUserById(@Param('id') id: string) {
+  getUserById(@Param('id', ParseIntPipe) id: number) {
     return this.userService.findById(id);
   }
 
@@ -35,12 +47,21 @@ export class UserController {
   }
 
   @Put(':id')
-  updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  updateUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
     this.updateUser(id, updateUserDto);
 
     return {
       data: { id, ...updateUserDto },
       message: 'User updted successfully',
     };
+  }
+
+  @Delete(':id')
+  @UseGuards(RoleGuard)
+  deleteUser(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.deleteUser(id);
   }
 }

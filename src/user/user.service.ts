@@ -26,8 +26,8 @@ export class UserService {
     );
   }
 
-  findById(id: string) {
-    const user = this.users.find((user) => user.id === Number(id));
+  findById(id: number) {
+    const user = this.users.find((user) => user.id === id);
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -43,14 +43,22 @@ export class UserService {
     return createUserDto;
   }
 
-  updateUser(id: string, updateUserDto: UpdateUserDto) {
+  updateUser(id: number, updateUserDto: UpdateUserDto) {
     const user = this.findById(id);
 
     if (user) {
-      user.name = (updateUserDto.name || user.name) as string;
-      user.email = (updateUserDto.email || user.email) as string;
+      user.name = updateUserDto.name || user.name;
+      user.email = updateUserDto.email || user.email;
     }
 
     return user;
+  }
+
+  deleteUser(id: number) {
+    const index = this.users.findIndex((user) => user.id === id);
+    if (index === -1) {
+      throw new NotFoundException('User not found');
+    }
+    this.users.splice(index, 1);
   }
 }
